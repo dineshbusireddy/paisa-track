@@ -14,13 +14,13 @@ function saveExpenses(expenses) {
 
 function addExpense() {
   const amountInput = document.getElementById("amount");
-  const categoryInput = document.getElementById("category");
+  const categorySelect = document.getElementById("category");
 
   const amount = amountInput.value;
-  const category = categoryInput.value;
+  const category = categorySelect.value;
 
   if (!amount || !category) {
-    alert("Please enter amount and category");
+    alert("Please enter amount and select category");
     return;
   }
 
@@ -35,27 +35,53 @@ function addExpense() {
   saveExpenses(expenses);
 
   amountInput.value = "";
-  categoryInput.value = "";
+  categorySelect.value = "";
 
+  renderExpenses();
+}
+
+function deleteExpense(id) {
+  let expenses = getExpenses();
+  expenses = expenses.filter(e => e.id !== id);
+  saveExpenses(expenses);
   renderExpenses();
 }
 
 function renderExpenses() {
   const list = document.getElementById("expenseList");
+  const totalSpan = document.getElementById("totalAmount");
+
   list.innerHTML = "";
 
   const expenses = getExpenses();
+  let total = 0;
 
   if (expenses.length === 0) {
     list.innerHTML = "<li>No expenses yet</li>";
+    totalSpan.textContent = "0";
     return;
   }
 
   expenses.forEach((e) => {
+    total += e.amount;
+
     const li = document.createElement("li");
-    li.textContent = `₹${e.amount} - ${e.category} (${e.date})`;
+    li.className = "expense-row";
+
+    const text = document.createElement("span");
+    text.textContent = `₹${e.amount} - ${e.category}`;
+
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "Delete";
+    delBtn.className = "delete-btn";
+    delBtn.onclick = () => deleteExpense(e.id);
+
+    li.appendChild(text);
+    li.appendChild(delBtn);
     list.appendChild(li);
   });
+
+  totalSpan.textContent = total.toString();
 }
 
 document.getElementById("addBtn").addEventListener("click", addExpense);
